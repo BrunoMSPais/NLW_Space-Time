@@ -14,13 +14,8 @@ export default function Home() {
         {/* Stripes */}
         <div className="absolute bottom-0 right-2 top-0 w-2 bg-stripes"></div>
 
-        {/* Profile */}
         <SignIn />
-
-        {/* Hero */}
         <Hero />
-
-        {/* Copyright */}
         <Copyright />
       </div>
 
