@@ -1,6 +1,11 @@
 import { styled } from 'nativewind'
 import { StatusBar } from 'expo-status-bar'
 import { ImageBackground, Text, TouchableOpacity, View } from 'react-native'
+import { makeRedirectUri, useAuthRequest } from 'expo-auth-session'
+import { useEffect } from 'react'
+import * as SecureStore from 'expo-secure-store'
+
+import { api } from './src/lib/api'
 
 import {
   useFonts,
@@ -13,8 +18,6 @@ import { BaiJamjuree_700Bold } from '@expo-google-fonts/bai-jamjuree'
 import blurBg from './src/assets/luz.png'
 import Stripes from './src/assets/stripes.svg'
 import NLWLogo from './src/assets/nlw-spacetime-logo.svg'
-import { makeRedirectUri, useAuthRequest } from 'expo-auth-session'
-import { useEffect } from 'react'
 
 const StyledStripes = styled(Stripes)
 
@@ -49,10 +52,23 @@ export default function App() {
     //     scheme: 'nlwspacetime',
     //   }),
     // )
-    console.log(response)
+    // console.log(response)
 
     if (response?.type === 'success') {
       const { code } = response.params
+
+      api
+        .post('/register', {
+          code,
+        })
+        .then((response) => {
+          const { token } = response.data
+
+          SecureStore.setItemAsync('nlw.spacetime.token', token)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
     }
   }, [response])
 
