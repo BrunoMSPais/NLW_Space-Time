@@ -1,6 +1,6 @@
 module.exports = {
   plugins: [require('prettier-plugin-tailwindcss')],
-  trailingComa: 'false',
+  trailingComa: 'true',
   tabWidth: 2,
   semi: false,
   singleQuote: true,
