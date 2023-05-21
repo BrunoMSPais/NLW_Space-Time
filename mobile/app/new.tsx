@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'expo-router'
+import { Link, useRouter } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   View,
@@ -11,6 +11,9 @@ import {
   Image,
 } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
+import * as SecureStore from 'expo-secure-store'
+
+import { api } from '../src/lib/api'
 
 import Icon from '@expo/vector-icons/Feather'
 
@@ -18,6 +21,7 @@ import NLWLogo from '../src/assets/nlw-spacetime-logo.svg'
 
 const NewMemory = () => {
   const { bottom, top } = useSafeAreaInsets()
+  const router = useRouter()
 
   const [preview, setPreview] = useState<string | null>(null)
   const [content, setContent] = useState('')
@@ -25,6 +29,7 @@ const NewMemory = () => {
 
   async function openImagePicker() {
     try {
+      // TODO: adicionar upload de video
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 1,
@@ -35,11 +40,48 @@ const NewMemory = () => {
       }
     } catch (error) {
       console.log(error)
+      // TODO: tratar erro
     }
   }
 
   async function handleCreateMemory() {
-    // const token = await SecureStore.getItemAsync('token')
+    const token = await SecureStore.getItemAsync('token')
+
+    let coverUrl = ''
+
+    if (preview) {
+      const uploadFormData = new FormData()
+
+      uploadFormData.append('file', {
+        uri: preview,
+        name: 'image.jpg',
+        type: 'image/jpeg',
+      } as any)
+
+      const uploadResponse = await api.post('/upload', uploadFormData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+
+      coverUrl = uploadResponse.data.fileUrl
+    }
+
+    await api.post(
+      '/memories',
+      {
+        content,
+        isPublic,
+        coverUrl,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    )
+
+    router.push('/memories')
   }
 
   return (
