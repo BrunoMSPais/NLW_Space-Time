@@ -43,7 +43,7 @@ function NewMemoryForm() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     )
 
     router.push('/')

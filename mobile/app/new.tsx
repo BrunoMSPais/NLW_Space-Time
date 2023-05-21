@@ -8,7 +8,9 @@ import {
   Switch,
   TextInput,
   ScrollView,
+  Image,
 } from 'react-native'
+import * as ImagePicker from 'expo-image-picker'
 
 import Icon from '@expo/vector-icons/Feather'
 
@@ -17,7 +19,28 @@ import NLWLogo from '../src/assets/nlw-spacetime-logo.svg'
 const NewMemory = () => {
   const { bottom, top } = useSafeAreaInsets()
 
+  const [preview, setPreview] = useState<string | null>(null)
+  const [content, setContent] = useState('')
   const [isPublic, setIsPublic] = useState(false)
+
+  async function openImagePicker() {
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+      })
+
+      if (result.assets[0]) {
+        setPreview(result.assets[0].uri)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async function handleCreateMemory() {
+    // const token = await SecureStore.getItemAsync('token')
+  }
 
   return (
     <ScrollView
@@ -46,16 +69,25 @@ const NewMemory = () => {
             Tornar memória pública
           </Text>
         </View>
+
         <TouchableOpacity
           activeOpacity={0.7}
           className="h-32 items-center justify-center rounded-lg border border-dashed border-gray-500 bg-black/20"
+          onPress={openImagePicker}
         >
-          <View className="flex-row items-center gap-2">
-            <Icon name="image" color="#fff" />
-            <Text className="font-body text-sm text-gray-200">
-              Adicionar foto ou video de capa
-            </Text>
-          </View>
+          {preview ? (
+            <Image
+              source={{ uri: preview }}
+              className="h-full w-full rounded-lg object-cover"
+            />
+          ) : (
+            <View className="flex-row items-center gap-2">
+              <Icon name="image" color="#fff" />
+              <Text className="font-body text-sm text-gray-200">
+                Adicionar foto ou video de capa
+              </Text>
+            </View>
+          )}
         </TouchableOpacity>
 
         <TextInput
@@ -63,11 +95,13 @@ const NewMemory = () => {
           className="p-0 font-body text-lg text-gray-50"
           placeholderTextColor="#56565a"
           placeholder="Fique livre para adicionar fotos, vídeos e relatos sobre essa experiência que você quer lembrar para sempre."
+          value={content}
+          onChangeText={setContent}
         />
         <TouchableOpacity
           activeOpacity={0.7}
           className="mt-auto items-center self-end rounded-full bg-green-500 px-5 py-2"
-          //   onPress={}
+          onPress={handleCreateMemory}
         >
           <Text className="font-alt text-sm uppercase text-black">Salvar</Text>
         </TouchableOpacity>
